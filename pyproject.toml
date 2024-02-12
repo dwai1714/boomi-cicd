@@ -1,0 +1,34 @@
+[tool.poetry]
+name = "boomi_cicd"
+version = "0.1.0"
+description = ""
+authors = [
+    "Accion Roompot team <dc@accionlabs.com>",
+]
+packages = [
+    { include = "cicd" }
+]
+
+[tool.poetry.dependencies]
+python = ">=3.10"
+colorlog = "6.8.2"
+isort = "5.13.2"
+pre-commit = "3.6.0"
+pyAesCrypt = "6.1.1"
+pytest= "8.0.0"
+requests = "2.31.0"
+xmltodict = "0.13.0"
+envtoml= "0.1.2"
+
+
+[tool.black]
+line-length = 120
+arget-version = ["py38"]
+skip-string-normalization = true
+
+[tool.coverage.run]
+branch = true
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.core.masonry.api"
