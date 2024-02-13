@@ -25,7 +25,8 @@ class Model:
     """
 
     def __init__(
-        self, model_name: str, config_file_path: str , file_name: str = None, repository_name: str = None,
+        self, model_name: str, config_file_path: str, file_name: str = None, repository_name: str = None,
+        source_id: str = None,
         account_id: str = None,
         cloud_id: str = None, base64_credentials: str = None, endpoint_url: str = None,
     ):
@@ -36,9 +37,9 @@ class Model:
         self.file_name = file_name
         self.model_name = model_name
         self.repository_name = repository_name
-        self.repository = Repository(self.repository_name)
+        self.repository = Repository(self.repository_name, config_file_path)
         self.repository_id = self.repository.get_repo_id()
-
+        self.source_id = source_id
         if account_id is None:
             self.account_id = config[self.environment]['account_id']
         if cloud_id is None:
@@ -139,7 +140,7 @@ class Model:
         Returns:
             response of the call
         """
-        data = f"""<mdm:PublishModelRequest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:mdm="http://mdm.api.platform.boomi.com/">
+        data = f"""<mdm:PublishModelRequest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:mdm="http://mdm.api.platform.boomi.com/"> # noqa
             <mdm:notes>{notes}</mdm:notes>
             </mdm:PublishModelRequest> """
         model_id = self.get_model_id_from_name()
@@ -177,3 +178,46 @@ class Model:
             logger.info(f'Response is {response.content}')
             raise RuntimeError('Response is not 200. Exiting')
         return response, response.content
+
+    def enable_initial_load(self):
+        """
+        Enable initial load for a model.
+        Returns:
+            response of the call
+        """
+        model_id = self.get_model_id_from_name()
+
+        url = f'{self.endpoint_url}/{self.account_id}/repositories/{self.repository_id}/universes/{model_id}/sources/{self.source_id}/enableInitialLoad'  # noqa
+        response = requests.post(url=url, headers=self.headers)
+
+        if response.status_code == 200:
+            logger.info(
+                'Enabled initial load successfully. Response: %s',
+                response.status_code,
+            )
+
+        else:
+            logger.error(
+                f'Failed to enable initial load. Status code: {response.status_code}',
+            )
+
+    def finish_initial_load(self):
+        """
+        Finish initial load for a model.
+        Returns:
+           response of the call
+        """
+        model_id = self.get_model_id_from_name()
+        url = f'{self.endpoint_url}/{self.account_id}/repositories/{self.repository_id}/universes/{model_id}/sources/{self.source_id}/finishInitialLoad'  # noqa
+        response = requests.post(url=url, headers=self.headers)
+
+        if response.status_code == 200:
+            logger.info(
+                'finished initial load successfully.  Response: %s',
+                response.status_code,
+            )
+
+        else:
+            logger.error(
+                f'Failed to finish initial load. Status code: {response.status_code}',
+            )

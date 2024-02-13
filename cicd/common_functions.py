@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import importlib
 import importlib.util
 import json
 import os
@@ -26,13 +25,14 @@ def add_applied_file(ind, file_name, changelog_path):
     """
     environment = os.environ['ENV']
 
-    with open(f"{changelog_path}/changelog.json", 'r') as json_s:
+    with open(f'{changelog_path}/changelog.json', 'r') as json_s:
         changelog_dict = json.load(json_s)
         env_dict = changelog_dict[environment]
         env_dict[str(ind)] = file_name
         logger.info(changelog_dict)
-    with open(f"{changelog_path}/changelog.json", 'w') as json_s:
+    with open(f'{changelog_path}/changelog.json', 'w') as json_s:
         json.dump(changelog_dict, json_s)
+
 
 def load_module(file_path, file_name, module_name):
     full_file_name = os.path.join(file_path, file_name)
@@ -41,6 +41,7 @@ def load_module(file_path, file_name, module_name):
     sys.modules[module_name] = module
     spec.loader.exec_module(module)
     return module
+
 
 def process_file(version_path, file_name, ind, changelog_path):
     """
@@ -64,9 +65,3 @@ def process_file(version_path, file_name, ind, changelog_path):
         module.backward()
         return
     add_applied_file(ind, file_name, changelog_path)
-
-
-
-
-
-

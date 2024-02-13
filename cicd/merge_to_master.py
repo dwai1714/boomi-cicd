@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import json
 import os
-import sys
 
 from cicd.common_functions import process_file
 from cicd.utils.log import get_logger
@@ -60,4 +59,4 @@ def apply_changes(versions_path, changelog_path):
     if len(changed_file_list) == 0:
         return
     file_name = list(changed_file_list)[0]
-    process_file(versions_path, file_name, last_index + 1,changelog_path)
+    process_file(versions_path, file_name, last_index + 1, changelog_path)

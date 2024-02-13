@@ -2,11 +2,9 @@ from __future__ import annotations
 
 import json
 import os
-import sys
 
 from cicd.common_functions import process_file
 from cicd.utils.log import get_logger
-from cicd.utils.utility import get_project_root
 
 logger = get_logger(__name__)
 

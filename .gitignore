@@ -38,6 +38,3 @@ src/**/dist
 cicd/**/charts
 .dvc/
 .coverage*
-Brewfile.lock.json
-worker.log
-data/client_data

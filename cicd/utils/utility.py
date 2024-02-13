@@ -8,7 +8,6 @@ import envtoml
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
-
 def get_config(config_file_path: str):
     """
     Load Config from toml file

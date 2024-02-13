@@ -8,10 +8,11 @@ from pathlib import Path
 import colorlog
 
 from cicd.utils.utility import get_config
+
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 print(ROOT_DIR)
 
-settings = get_config(f"{ROOT_DIR}/config.toml")
+settings = get_config(f'{ROOT_DIR}/config.toml')
 
 
 DATE_FORMAT = '%y/%m/%d %T'
