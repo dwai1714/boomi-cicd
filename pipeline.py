@@ -1,14 +1,17 @@
+from __future__ import annotations
+
 import os
 from pathlib import Path
+
 from cicd import merge_to_master, promote
 
 root_path = Path(__file__).parent.parent
 print(root_path)
-versions_path = f"{root_path}/mdm_infra/manage_actual_changes/versions"
-changelog_path = f"{root_path}/mdm_infra/manage_actual_changes/"
+versions_path = f'{root_path}/mdm_infra/manage_actual_changes/versions'
+changelog_path = f'{root_path}/mdm_infra/manage_actual_changes/'
 environment = os.environ['ENV']
 if __name__ == '__main__':
-    if environment == "DEV":
+    if environment == 'DEV':
         merge_to_master.apply_changes(versions_path, changelog_path)
     else:
         promote.apply_changes(versions_path, changelog_path)
