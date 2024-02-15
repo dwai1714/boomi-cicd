@@ -4,14 +4,3 @@ LOG_LEVEL = 'INFO'
 LOG_FORMAT = '[%(asctime)s] [%(levelname)s] [%(message)s] [--> %(pathname)s [%(process)d]:]'
 LOG_FILE_LOCATION = '/tmp/'
 encrypt_file_password = "PASSWORD"
-[DEV]
-endpoint_url = "https://api.boomi.com/mdm/api/rest/v1"
-account_id = "trainingharikasundari-DADFVL"
-cloud_id = "3229df3b-0682-44c4-b900-57b8a249c17b"  # 3229df3b-0682-44c4-b900-57b8a249c17b
-base64_credentials = "$BASE_CREDENTIALS"
-
-[QA]
-endpoint_url = "https://api.boomi.com/mdm/api/rest/v1"
-account_id = "trainingharikasundari-DADFVL"
-cloud_id = "3229df3b-0682-44c4-b900-57b8a249c17b"  # 3229df3b-0682-44c4-b900-57b8a249c17b
-base64_credentials = "$BASE_CREDENTIALS"
