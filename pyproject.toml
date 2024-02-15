@@ -1,34 +1,34 @@
-[tool.poetry]
+[project]
 name = "boomi_cicd"
 version = "0.1.0"
-description = ""
+requires-python = ">=3.10,<4"
+description = "Alembic like tool to manage Boomi CICD"
 authors = [
-    "Accion Roompot team <dc@accionlabs.com>",
-]
-packages = [
-    { include = "cicd" }
+    {name = "DC", email = "dc@accionlabs.com"},
 ]
 
-[tool.poetry.dependencies]
-python = ">=3.10"
-colorlog = "6.8.2"
-isort = "5.13.2"
-pre-commit = "3.6.0"
-pyAesCrypt = "6.1.1"
-pytest= "8.0.0"
-requests = "2.31.0"
-xmltodict = "0.13.0"
-envtoml= "0.1.2"
+dependencies = [
+    "colorlog == 6.8.2",
+    "isort == 5.13.2",
+    "pre-commit == 3.6.0",
+    "pyAesCrypt == 6.1.1",
+    "pytest == 8.0.0",
+    "requests == 2.31.0",
+    "xmltodict == 0.13.0",
+    "envtoml == 0.1.2",
+    "humanfriendly == 10.0",
+    "pyfiglet == 1.0.2"]
 
+[project.scripts]
+pipeline = "cicd.pipeline:main"
+create-file = "cicd.create_version_file:main"
 
-[tool.black]
-line-length = 120
-arget-version = ["py38"]
-skip-string-normalization = true
+[tool.setuptools.package-data]
+configModule = ["*.toml"]
 
-[tool.coverage.run]
-branch = true
 
 [build-system]
-requires = ["poetry>=0.12"]
-build-backend = "poetry.core.masonry.api"
+requires = [
+    "setuptools>=60",
+    "setuptools-scm>=8.0", "wheel"]
+build-backend = "setuptools.build_meta"
