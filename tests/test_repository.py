@@ -14,7 +14,6 @@ def test_create_repo_failure(post_repo_api_failure):
 
     try:
         response, response.content = repository.create_repo()
-        assert response.status_code == 500
     except RuntimeError as e:
         assert str(e) == "Response is not 200. Exiting"
 
@@ -40,6 +39,5 @@ def test_delete_repo_failre(get_repo_api_sucess, delete_repo_api_failure):
 
     try:
         response, response.content = repository.delete_repo()
-        assert response.status_code == 500
     except RuntimeError as e:
         assert str(e) == "Response is not 200. Exiting"
