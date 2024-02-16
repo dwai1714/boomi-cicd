@@ -34,6 +34,27 @@ def add_applied_file(ind, file_name, changelog_path):
         json.dump(changelog_dict, json_s)
 
 
+def remove_applied_file(ind, changelog_path):
+    """
+
+    Args:
+        removes element by key from changelog.json
+        changelog_path : Full path of the directory where changelog.json is present (/tmp/log/)
+
+    Returns:
+        None
+
+    """
+    environment = os.environ['ENV']
+
+    with open(f'{changelog_path}/changelog.json', 'r') as json_s:
+        changelog_dict = json.load(json_s)
+        del changelog_dict[environment][str(ind)]
+        logger.info(changelog_dict)
+    with open(f'{changelog_path}/changelog.json', 'w') as json_s:
+        json.dump(changelog_dict, json_s)
+
+
 def load_module(file_path, file_name, module_name):
     full_file_name = os.path.join(file_path, file_name)
     spec = importlib.util.spec_from_file_location(module_name, full_file_name)
@@ -61,7 +82,31 @@ def process_file(version_path, file_name, ind, changelog_path):
     try:
         module.forward()
     except Exception as e:
+        logger.error(f'Failed to add file {file_name}, Doing rollback')
         logger.info(e)
         module.backward()
         return
     add_applied_file(ind, file_name, changelog_path)
+
+
+def rollback_file(versions_path, file_name, ind, changelog_path):
+    """
+
+    Args:
+        file_name (): The version file that we are processing
+        ind (): The index that is needed for the configlog.json
+        changelog_path : Full path of the directory where changelog.json is present (/tmp/log/)
+
+
+    Returns:
+        None
+
+    """
+    module_name = 'versions'
+    module = load_module(versions_path, file_name, module_name)
+    try:
+        module.backward()
+    except Exception as e:
+        logger.info(e)
+        raise RuntimeError('IMPORTANT: Fatal Error:Failed to roll back. Please check the errors and do manual intervention') #noqa
+    remove_applied_file(ind, changelog_path)

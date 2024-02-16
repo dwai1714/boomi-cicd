@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import os
 
-from cicd.common_functions import process_file
+from cicd.common_functions import process_file, rollback_file
 from cicd.utils.log import get_logger
 
 logger = get_logger(__name__)
@@ -25,6 +25,22 @@ def find_files_to_apply(versions_path, changelog_path):
         file that has to be applied
 
     """
+    env_dict, files_applied, last_index = get_last_index(changelog_path)
+
+    from os.path import isfile, join
+    only_py_files = [
+        f for f in os.listdir(versions_path) if (
+            isfile(join(versions_path, f)) and f.endswith('.py')
+        )
+    ]
+    logger.info(only_py_files)
+    changed_files = set(only_py_files) - set(files_applied)
+    if len(changed_files) > 1:
+        raise RuntimeError('Number of files is more than 1. Aborting')
+    return last_index, changed_files
+
+
+def get_last_index(changelog_path):
     with open(f'{changelog_path}/changelog.json', 'r') as json_s:
         changelog_dict = json.load(json_s)
         env_dict = changelog_dict['DEV']
@@ -35,18 +51,7 @@ def find_files_to_apply(versions_path, changelog_path):
         sorted_list = sorted(new_list)
         if len(indexes) != 0:
             last_index = sorted_list[-1]
-
-    from os.path import isfile, join
-    only_py_files = [
-        f for f in os.listdir(versions_path) if (
-            isfile(join(versions_path, f)) and f.endswith('.py')
-        )
-    ]
-    print(only_py_files)
-    changed_files = set(only_py_files) - set(files_applied)
-    if len(changed_files) > 1:
-        raise RuntimeError('Number of files is more than 1. Aborting')
-    return last_index, changed_files
+    return env_dict, files_applied, last_index
 
 
 def apply_changes(versions_path, changelog_path):
@@ -60,3 +65,8 @@ def apply_changes(versions_path, changelog_path):
         return
     file_name = list(changed_file_list)[0]
     process_file(versions_path, file_name, last_index + 1, changelog_path)
+
+def rollback_changes(versions_path, changelog_path):
+    env_dict, files_applied, last_index = get_last_index(changelog_path)
+    file_name = env_dict[str(last_index)]
+    rollback_file(versions_path, file_name, last_index, changelog_path)
