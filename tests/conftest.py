@@ -5,17 +5,17 @@ import requests
 
 
 @pytest.fixture
-def post_repo_api_sucess(mocker):
+def get_api_success(mocker):
     mocked_response = Mock(spec=requests.Response)
     mocked_response.status_code = 200
 
-    mocker.patch.object(requests, 'post', return_value=mocked_response)
+    mocker.patch.object(requests, 'get', return_value=mocked_response)
 
     return mocker
 
 
 @pytest.fixture
-def post_repo_api_failure(mocker):
+def get_api_failure(mocker):
     mocked_response = Mock(spec=requests.Response)
     mocked_response.status_code = 500
 
@@ -25,7 +25,27 @@ def post_repo_api_failure(mocker):
 
 
 @pytest.fixture
-def get_repo_api_sucess(mocker):
+def post_api_success(mocker):
+    mocked_response = Mock(spec=requests.Response)
+    mocked_response.status_code = 200
+
+    mocker.patch.object(requests, 'post', return_value=mocked_response)
+
+    return mocker
+
+
+@pytest.fixture
+def post_api_failure(mocker):
+    mocked_response = Mock(spec=requests.Response)
+    mocked_response.status_code = 500
+
+    mocker.patch.object(requests, 'post', return_value=mocked_response)
+
+    return mocker
+
+
+@pytest.fixture
+def get_repo_api_success(mocker):
     mocked_response = Mock(spec=requests.Response)
 
     xml_response_content = """
@@ -45,7 +65,7 @@ def get_repo_api_sucess(mocker):
 
 
 @pytest.fixture
-def delete_repo_api_success(mocker):
+def delete_api_success(mocker):
     mocked_response = Mock(spec=requests.Response)
     mocked_response.status_code = 200
 
@@ -55,7 +75,7 @@ def delete_repo_api_success(mocker):
 
 
 @pytest.fixture
-def delete_repo_api_failure(mocker):
+def delete_api_failure(mocker):
     mocked_response = Mock(spec=requests.Response)
     mocked_response.status_code = 500
 
