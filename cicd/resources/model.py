@@ -1,13 +1,14 @@
 from __future__ import annotations
 
 import os
+from typing import List
 
 import requests
 import xmltodict
+
 from cicd.resources.repository import Repository
 from cicd.utils.log import get_logger
 from cicd.utils.utility import get_config
-from typing import List
 
 logger = get_logger(__name__)
 
@@ -29,14 +30,15 @@ class Model:
         source_id: str = None,
         account_id: str = None,
         cloud_id: str = None, base64_credentials: str = None, endpoint_url: str = None,
-            source_ids: List[str] = None):
+            source_ids: List[str] = None,
+    ):
 
-        self.environment = os.environ["ENV"]
+        self.environment = os.environ['ENV']
 
         config = get_config(config_file_path)
         self.environment = os.environ['ENV']
 
-        self.environment = os.environ["ENV"]
+        self.environment = os.environ['ENV']
         self.file_name = file_name
         self.model_name = model_name
         self.repository_name = repository_name
@@ -46,14 +48,14 @@ class Model:
         self.repository_id = self.repository.get_repo_id()
 
         if account_id is None:
-            self.account_id = config[self.environment]["account_id"]
+            self.account_id = config[self.environment]['account_id']
         if cloud_id is None:
-            self.cloud_id = config[self.environment]["cloud_id"]
+            self.cloud_id = config[self.environment]['cloud_id']
         if base64_credentials is None:
-            self.base64_credentials = config[self.environment]["base64_credentials"]
-            self.headers = {"Authorization": "Basic %s" % self.base64_credentials, "Content-Type": "application/xml"}
+            self.base64_credentials = config[self.environment]['base64_credentials']
+            self.headers = {'Authorization': 'Basic %s' % self.base64_credentials, 'Content-Type': 'application/xml'}
         if endpoint_url is None:
-            self.endpoint_url = config[self.environment]["endpoint_url"]
+            self.endpoint_url = config[self.environment]['endpoint_url']
 
 
     def create_model(self):
@@ -190,7 +192,7 @@ class Model:
             A list of source IDs extracted from the XML file.
         """
         if self.file_name is None:
-            raise ValueError("File name is not provided.")
+            raise ValueError('File name is not provided.')
 
         with open(self.file_name, 'rb') as xml_file:
             dict_xml = xmltodict.parse(xml_file)
@@ -220,8 +222,10 @@ class Model:
         if source_id not in self.source_ids:
             raise ValueError(f"Source ID '{source_id}' is not found in the list of source IDs.")
 
-        url = (f"{self.endpoint_url}/{self.account_id}/repositories/{self.repository_id}/universes/{model_id}"
-               f"/sources/{source_id}/enableInitialLoad")
+        url = (
+            f'{self.endpoint_url}/{self.account_id}/repositories/{self.repository_id}/universes/{model_id}'
+            f'/sources/{source_id}/enableInitialLoad'
+        )
         response = requests.post(url=url, headers=self.headers)
 
         if response.status_code != 200:
@@ -245,8 +249,10 @@ class Model:
         if source_id not in self.source_ids:
             raise ValueError(f"Source ID '{source_id}' is not found in the list of source IDs.")
 
-        url = (f"{self.endpoint_url}/{self.account_id}/repositories/{self.repository_id}/universes/{model_id}"
-               f"/sources/{source_id}/finishInitialLoad")
+        url = (
+            f'{self.endpoint_url}/{self.account_id}/repositories/{self.repository_id}/universes/{model_id}'
+            f'/sources/{source_id}/finishInitialLoad'
+        )
         response = requests.post(url=url, headers=self.headers)
 
         if response.status_code != 200:

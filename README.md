@@ -1,16 +1,33 @@
-# mdm infra
+# Helper Tool for Boomi CICD
 
-## Configs
-
-* All configs are managed config.toml
-
-## Business Logic
+## Problem Statement
 
 All operations on Boomi MDM should be done using Boomi APIs. Boomi APIs use XML files as datasource for its operations
 When any object is changed it should be applied to an env specific Boomi Account (example DEV)
-When a code is merged to master it will change the DEV Boomi account
-mdm_infra/manage_changes/merge_to_master.py is applied when any code is merged to master.
-changelog.json keeps track of what file has been applied in a json format like
+Since all operations on Boomi is done using XML files, the atomic changes can not be done using a python tool like Alembic
+This tool mimicks Alemgic and can be used by teams that uses Boomi.
+When any element such as Model or Source is created it should be created using a XML file.
+But changes to this model or source is again done using another XML file which applies the changes
+example:
+Create a model, then add or delete one or multiple fields. This needs multiple API calls with different versions of the XML
+The problem is when the dev code needs to be promoted to QA or Prod all the changes that is done on Dev should be
+sequentially applied else there will be a mismatch of fields/versions between the two environments
+
+## Business Logic
+This tool has all the implementation of different Boomi API calls (Model, Repository, Source etc.).
+All the API calls are in the resources directory
+To use this tool you need to pip install boomi_cicd-0.1.0-py3-none-any.whl from the dist directory to your workspace
+For simplicity’s sake create a versions directory in your project.
+To create an atomic change file use the following command
+```commandline
+create-file --versions_path ~/roompot/mdm_infra/manage_actual_changes/versions --file_name your_file_name
+```
+This will create a version file with two methods
+forward - This is where you should apply all your changes. You can chain function calls
+example: create_repository, create_model
+backward - This is where you should write a exactly opposite function so that if any exception occurs in
+forward call this method is called which nullifies all the changes and keeps your environment intact.
+You should have a file called changelog.json and this file keeps track of what has been applied in any environment
 {
   "DEV": {1, "created_repo_1.py", 2, "updated_repo_1.py"},
   "QA": {},
@@ -19,24 +36,20 @@ changelog.json keeps track of what file has been applied in a json format like
 This file is only modified by pipeline and should not be touched by developers.
 
 This code checks from changelog.json what are the files that were applied in the dev before and which file from
-mdm_infra/manage_changes/versions has not been applied. Not that for one feature branch only one file should be applied.
-Each developer when applying this change should create a file like version_x.py (it should be something more meaningful
-name such as added_new_repository.py)
-Each file should have two methods forward() and backward(). forward should apply the changes that the developer is
-expecting to do and there should be an exactly opposite atomic function to revert the change in backward.
-mdm_infra/manage_changes/versions/version1.py.sample
-mdm_infra/manage_changes/versions/version2.py.sample
-gives an example of how the files should be written
+your versions directory has not been applied. For one feature branch only one file should be applied.
 
 After certain cycles when it's time to move to higher environment like QA mdm_infra/manage_changes/promote.py
 should be applied and this will make sure all the changes that were not applied to QA is applied one by one. If anything
 fails it applies backward() and makes sure the env is clean
 
-The way to deal with Boomi APIs is through functions defined in files that are in mdm_infra/src folder
-There is documentation in each file that defines what each function is doing.
 
 ## Pipeline Logic
-#TODO
+The pipeline code should call the following CLI command inside the shell script
+```commandline
+pipeline --versions_path path/to/versions/ --changelog_path path/to/changelog.json
+```
+Once this is successful, you should run the integration tests etc.
+If the integration tests fail
 
 
 ## Deployment

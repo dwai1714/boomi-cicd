@@ -2,11 +2,31 @@ from __future__ import annotations
 
 import json
 import os
+import shutil
 
-from cicd.common_functions import process_file
+from cicd.common_functions import process_file, rollback_file
 from cicd.utils.log import get_logger
 
 logger = get_logger(__name__)
+
+
+def get_sorted_dict(items):
+    """
+
+    Args:
+        items (): Unsorted set of dict
+
+    Returns:
+        dictionary, sorted list
+
+    """
+    lst = []
+    for item in items:
+        lst.append(item[0])
+    new_list = [int(current_integer) for current_integer in lst]
+    sorted_list = sorted(new_list)
+    item_dict = dict(items)
+    return item_dict, sorted_list
 
 
 def _find_difference(changelog_path):
@@ -29,13 +49,27 @@ def apply_changes(versions_path, changelog_path):
     Returns:
 
     """
+    source_file = f'{changelog_path}/changelog.json'
+    destination_dir = '/tmp/'
+    shutil.copy(source_file, destination_dir)
+
     items = _find_difference(changelog_path)
-    lst = []
-    for item in items:
-        lst.append(item[0])
-    new_list = [int(current_integer) for current_integer in lst]
-    sorted_list = sorted(new_list)
-    item_dict = dict(items)
+    item_dict, sorted_list = get_sorted_dict(items)
+
     for ind in sorted_list:
         file_name = item_dict[str(ind)]
         process_file(versions_path, file_name, ind, changelog_path)
+
+
+def rollback_changes(versions_path, changelog_path):
+    """
+    rollback the changes from  higher environments if tests fail
+    Returns:
+
+    """
+    items = _find_difference('/tmp')
+    item_dict, sorted_list = get_sorted_dict(items)
+
+    for ind in sorted_list:
+        file_name = item_dict[str(ind)]
+        rollback_file(versions_path, file_name, ind, changelog_path)
