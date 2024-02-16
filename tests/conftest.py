@@ -19,7 +19,7 @@ def get_api_failure(mocker):
     mocked_response = Mock(spec=requests.Response)
     mocked_response.status_code = 500
 
-    mocker.patch.object(requests, 'post', return_value=mocked_response)
+    mocker.patch.object(requests, 'get', return_value=mocked_response)
 
     return mocker
 
