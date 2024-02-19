@@ -1,14 +1,11 @@
 from __future__ import annotations
-
 import os
-from typing import List
-
 import requests
 import xmltodict
-
 from cicd.resources.repository import Repository
 from cicd.utils.log import get_logger
 from cicd.utils.utility import get_config
+from typing import List
 
 logger = get_logger(__name__)
 
@@ -26,66 +23,58 @@ class Model:
     """
 
     def __init__(
-        self, model_name: str, config_file_path: str, file_name: str = None, repository_name: str = None,
-        source_id: str = None,
-        account_id: str = None,
-        cloud_id: str = None, base64_credentials: str = None, endpoint_url: str = None,
-            source_ids: List[str] = None,
+            self, model_name: str, config_file_path: str, file_name: str = None, repository_name: str = None,
+            account_id: str = None,
+            cloud_id: str = None, base64_credentials: str = None, endpoint_url: str = None,
     ):
 
-        self.environment = os.environ['ENV']
-
         config = get_config(config_file_path)
-        self.environment = os.environ['ENV']
-
         self.environment = os.environ['ENV']
         self.file_name = file_name
         self.model_name = model_name
         self.repository_name = repository_name
-        self.source_ids = self.get_source_ids_from_xml()
-
-        self.repository = Repository(self.repository_name,config_file_path)
+        self.source_ids = self.get_source_ids()
+        self.repository = Repository(self.repository_name, config_file_path)
         self.repository_id = self.repository.get_repo_id()
 
         if account_id is None:
-            self.account_id = config[self.environment]['account_id']
+            self.account_id = config[self.environment]["account_id"]
         if cloud_id is None:
-            self.cloud_id = config[self.environment]['cloud_id']
+            self.cloud_id = config[self.environment]["cloud_id"]
         if base64_credentials is None:
-            self.base64_credentials = config[self.environment]['base64_credentials']
-            self.headers = {'Authorization': 'Basic %s' % self.base64_credentials, 'Content-Type': 'application/xml'}
+            self.base64_credentials = config[self.environment]["base64_credentials"]
+            self.headers = {"Authorization": "Basic %s" % self.base64_credentials, "Content-Type": "application/xml"}
         if endpoint_url is None:
-            self.endpoint_url = config[self.environment]['endpoint_url']
-
+            self.endpoint_url = config[self.environment]["endpoint_url"]
 
     def create_model(self):
-            """
+        """
             Create a model
 
             Returns:
                 content of response
             """
-            url = f'{self.endpoint_url}/{self.account_id}/models'
-            if self.file_name is None:
-                raise RuntimeError('Create and update model needs valid xml')
-            with open(self.file_name, 'rb') as payload:
-                dict_xml = (xmltodict.parse(payload))
-                model_name_from_file = dict_xml['mdm:CreateModelRequest']['mdm:name']
-                if self.model_name != model_name_from_file:
-                    raise RuntimeError(
-                        'model names in file and object are different',
-                    )
-                if self.get_model_id_from_name() is not None:
-                    raise RuntimeError('model with same name exists')
-
-            with open(self.file_name, 'rb') as payload:
-                response = requests.post(
-                    url=url, headers=self.headers, data=payload,
+        url = f'{self.endpoint_url}/{self.account_id}/models'
+        if self.file_name is None:
+            raise RuntimeError('Create and update model needs valid xml')
+        with open(self.file_name, 'rb') as payload:
+            dict_xml = (xmltodict.parse(payload))
+            model_name_from_file = dict_xml['mdm:CreateModelRequest']['mdm:name']
+            if self.model_name != model_name_from_file:
+                raise RuntimeError(
+                    'model names in file and object are different',
                 )
-                if response.status_code != 200:
-                    logger.info(f'Response is {response.content}')
-                    raise RuntimeError('Response is not 200. Exiting')
-                return response, response.content
+            if self.get_model_id_from_name() is not None:
+                raise RuntimeError('model with same name exists')
+
+        with open(self.file_name, 'rb') as payload:
+            response = requests.post(
+                url=url, headers=self.headers, data=payload,
+            )
+            if response.status_code != 200:
+                logger.info(f'Response is {response.content}')
+                raise RuntimeError('Response is not 200. Exiting')
+            return response, response.content
 
     def get_model_id_from_name(self):
         """
@@ -184,7 +173,7 @@ class Model:
             raise RuntimeError('Response is not 200. Exiting')
         return response, response.content
 
-    def get_source_ids_from_xml(self) -> List[str]:
+    def get_source_ids(self) -> List[str]:
         """
         Extracts source IDs from the XML file.
 
@@ -192,7 +181,7 @@ class Model:
             A list of source IDs extracted from the XML file.
         """
         if self.file_name is None:
-            raise ValueError('File name is not provided.')
+            raise ValueError("File name is not provided.")
 
         with open(self.file_name, 'rb') as xml_file:
             dict_xml = xmltodict.parse(xml_file)
@@ -222,10 +211,8 @@ class Model:
         if source_id not in self.source_ids:
             raise ValueError(f"Source ID '{source_id}' is not found in the list of source IDs.")
 
-        url = (
-            f'{self.endpoint_url}/{self.account_id}/repositories/{self.repository_id}/universes/{model_id}'
-            f'/sources/{source_id}/enableInitialLoad'
-        )
+        url = (f"{self.endpoint_url}/{self.account_id}/repositories/{self.repository_id}/universes/{model_id}"
+               f"/sources/{source_id}/enableInitialLoad")
         response = requests.post(url=url, headers=self.headers)
 
         if response.status_code != 200:
@@ -237,7 +224,7 @@ class Model:
         Finish initial load for a model.
 
         Args:
-            source_id: The ID of the source for which initial load should be enabled.
+            source_id: The ID of the source for which initial load should be finished.
 
         Raises:
             ValueError: If the provided source_id is not found in the list of source_ids.
@@ -249,10 +236,8 @@ class Model:
         if source_id not in self.source_ids:
             raise ValueError(f"Source ID '{source_id}' is not found in the list of source IDs.")
 
-        url = (
-            f'{self.endpoint_url}/{self.account_id}/repositories/{self.repository_id}/universes/{model_id}'
-            f'/sources/{source_id}/finishInitialLoad'
-        )
+        url = (f"{self.endpoint_url}/{self.account_id}/repositories/{self.repository_id}/universes/{model_id}"
+               f"/sources/{source_id}/finishInitialLoad")
         response = requests.post(url=url, headers=self.headers)
 
         if response.status_code != 200:
