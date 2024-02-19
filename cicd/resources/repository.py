@@ -31,7 +31,7 @@ class Repository:
         config = get_config(config_file_path)
         self.environment = os.environ['ENV']
         self.repository_name: str = repository_name
-
+        self.model_ids = self.get_models_from_repo()
         if account_id is None:
             self.account_id = config[self.environment]['account_id']
         if cloud_id is None:
@@ -120,8 +120,7 @@ class Repository:
             Content of response
         """
         repo_id = self.get_repo_id()
-        model_ids = self.get_models_from_repo()
-        for model_id in model_ids:
+        for model_id in self.model_ids:
             undeploy_url = f'{self.endpoint_url}/{self.account_id}/repositories/{repo_id}/universe/{model_id}'
             undeploy_response = requests.delete(url=undeploy_url, headers=self.headers)
             if undeploy_response.status_code != 200:
