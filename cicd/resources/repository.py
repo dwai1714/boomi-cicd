@@ -96,7 +96,7 @@ class Repository:
             raise RuntimeError('Response is not 200. Exiting')
         return response, response.content
 
-    def get_models_in_repo(self) -> List[str]:
+    def get_models_from_repo(self) -> List[str]:
         """
         Get all model IDs present in the repository.
 
@@ -120,7 +120,7 @@ class Repository:
             Content of response
         """
         repo_id = self.get_repo_id()
-        model_ids = self.get_models_in_repo()
+        model_ids = self.get_models_from_repo()
         for model_id in model_ids:
             undeploy_url = f'{self.endpoint_url}/{self.account_id}/repositories/{repo_id}/universe/{model_id}'
             undeploy_response = requests.delete(url=undeploy_url, headers=self.headers)
