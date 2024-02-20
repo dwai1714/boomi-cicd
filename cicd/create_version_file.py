@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-import argparse
 import hashlib
 import os
 import time
 import uuid
 
+import click
 from humanfriendly import format_timespan
 from pyfiglet import Figlet
 
@@ -17,33 +17,24 @@ def short_uuid():
     short_uuid = hash_value[:4]
     return short_uuid
 
-def main():
+
+@click.command()
+@click.argument('versions_path')
+@click.argument('file_name')
+def cli(versions_path, file_name):
+    """
+        versions_path: Full Path to your versions folder
+
+        file_name: The file name (without spaces and without extension)
+    """
     f = Figlet(font='slant')
-    parser = argparse.ArgumentParser(description='Run the pipeline file')
-    parser.add_argument(
-        '--versions_path',
-        type=str,
-        required=True,
-        help='Full Path for your versions folder',
-    )
-    parser.add_argument(
-        '--file_name',
-        type=str,
-        required=True,
-        help='Name of your file such as create_xyz_model',
-    )
-    args = parser.parse_args()
-    env = os.environ['ENV']
-    versions_path = args.versions_path
-    file_name = args.file_name
+    click.echo(f.renderText('create a version file Such as create_xyz_model. Dont give spaces or extension '))
+    click.echo(f'versions_path {versions_path}')
+    click.echo(f'file name {file_name}')
 
-    print(f.renderText('create a version file'))
-
-    print(f'versions_path:\t{versions_path}')
-    print(f'file name:\t{file_name}')
-    print()
-    full_file_name = os.path.join(versions_path,file_name)
-    full_file_name = f'{full_file_name}_{short_uuid()}.py'
+    uuid_value = short_uuid()
+    full_file_name = os.path.join(versions_path, file_name)
+    full_file_name = f'{full_file_name}_{uuid_value}.py'
 
     content = """
 from __future__ import annotations
@@ -67,7 +58,10 @@ def backward():
     with open(full_file_name, 'w') as f:
         f.write(content)
 
+    click.echo('Version file created successfully!')
+
+
 if __name__ == '__main__':
     start = time.time()
-    main()
-    print(f'Execution time: {format_timespan(time.time() - start)}')
+    cli()
+    click.echo(f'Execution time: {format_timespan(time.time() - start)}')

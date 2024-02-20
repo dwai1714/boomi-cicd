@@ -4,7 +4,8 @@ import json
 import os
 import shutil
 
-from cicd.common_functions import process_file, rollback_file
+from cicd.common_functions import process_file
+from cicd.common_functions import rollback_file
 from cicd.utils.log import get_logger
 
 logger = get_logger(__name__)
@@ -69,7 +70,11 @@ def rollback_changes(versions_path, changelog_path):
     """
     items = _find_difference('/tmp')
     item_dict, sorted_list = get_sorted_dict(items)
+    if len(sorted_list) != 0:
+        reversed_list = sorted_list[::-1]
 
-    for ind in sorted_list:
-        file_name = item_dict[str(ind)]
-        rollback_file(versions_path, file_name, ind, changelog_path)
+        for ind in reversed_list:
+            file_name = item_dict[str(ind)]
+            rollback_file(versions_path, file_name, ind, changelog_path)
+    else:
+        logger.info('Nothing to Rollback')

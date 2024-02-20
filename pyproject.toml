@@ -6,9 +6,10 @@ description = "Alembic like tool to manage Boomi CICD"
 authors = [
     {name = "DC", email = "dc@accionlabs.com"},
 ]
-
+readme = "README.md"
 dependencies = [
     "colorlog == 6.8.2",
+
     "isort == 5.13.2",
     "pre-commit == 3.6.0",
     "pyAesCrypt == 6.1.1",
@@ -19,12 +20,13 @@ dependencies = [
     "humanfriendly == 10.0",
     "pyfiglet == 1.0.2",
     "pytest-mock==3.12.0",
-    "pytest-cov==4.1.0"
+    "pytest-cov==4.1.0",
+    "click==8.1.7"
 ]
 
 [project.scripts]
-pipeline = "cicd.pipeline:main"
-create-file = "cicd.create_version_file:main"
+pipeline = "cicd.pipeline:cli"
+create-file = "cicd.create_version_file:cli"
 
 [tool.setuptools.package-data]
 configModule = ["*.toml"]
