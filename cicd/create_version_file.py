@@ -17,6 +17,7 @@ def short_uuid():
     short_uuid = hash_value[:4]
     return short_uuid
 
+
 def main():
     f = Figlet(font='slant')
     parser = argparse.ArgumentParser(description='Run the pipeline file')
@@ -33,7 +34,6 @@ def main():
         help='Name of your file such as create_xyz_model',
     )
     args = parser.parse_args()
-    env = os.environ['ENV']
     versions_path = args.versions_path
     file_name = args.file_name
 
@@ -42,7 +42,7 @@ def main():
     print(f'versions_path:\t{versions_path}')
     print(f'file name:\t{file_name}')
     print()
-    full_file_name = os.path.join(versions_path,file_name)
+    full_file_name = os.path.join(versions_path, file_name)
     full_file_name = f'{full_file_name}_{short_uuid()}.py'
 
     content = """
@@ -66,6 +66,7 @@ def backward():
 """
     with open(full_file_name, 'w') as f:
         f.write(content)
+
 
 if __name__ == '__main__':
     start = time.time()

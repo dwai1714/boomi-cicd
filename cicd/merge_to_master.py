@@ -3,7 +3,8 @@ from __future__ import annotations
 import json
 import os
 
-from cicd.common_functions import process_file, rollback_file
+from cicd.common_functions import process_file
+from cicd.common_functions import rollback_file
 from cicd.utils.log import get_logger
 
 logger = get_logger(__name__)
@@ -30,7 +31,7 @@ def find_files_to_apply(versions_path, changelog_path):
     from os.path import isfile, join
     only_py_files = [
         f for f in os.listdir(versions_path) if (
-            isfile(join(versions_path, f)) and f.endswith('.py')
+                isfile(join(versions_path, f)) and f.endswith('.py')
         )
     ]
     logger.info(only_py_files)
@@ -66,7 +67,11 @@ def apply_changes(versions_path, changelog_path):
     file_name = list(changed_file_list)[0]
     process_file(versions_path, file_name, last_index + 1, changelog_path)
 
+
 def rollback_changes(versions_path, changelog_path):
     env_dict, files_applied, last_index = get_last_index(changelog_path)
-    file_name = env_dict[str(last_index)]
-    rollback_file(versions_path, file_name, last_index, changelog_path)
+    if len(env_dict) != 0:
+        file_name = env_dict[str(last_index)]
+        rollback_file(versions_path, file_name, last_index, changelog_path)
+    else:
+        logger.info('Nothing to rollback')

@@ -50,13 +50,16 @@ pipeline --versions_path path/to/versions/ --changelog_path path/to/changelog.js
 ```
 Once this is successful, you should run the integration tests etc.
 If the integration tests fail
+```commandline
+pipeline --versions_path path/to/versions/ --changelog_path path/to/changelog.json --rollback Y
+```
+This will roll back all the changes made if you hae created the backward function properly
 
 
-## Deployment
+## Enviornment variables
 
-* Create a Virtual Environment
-* Clone the code
-* pip install -r requirements.txt
+* ENV - The environment (DEV, QA, PROD)
+* LOG_LEVEL - Log level you want to set
 
 ## Prerequisites
 

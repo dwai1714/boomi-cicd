@@ -108,5 +108,7 @@ def rollback_file(versions_path, file_name, ind, changelog_path):
         module.backward()
     except Exception as e:
         logger.info(e)
-        raise RuntimeError('IMPORTANT: Fatal Error:Failed to roll back. Please check the errors and do manual intervention') #noqa
+        raise RuntimeError(
+            'IMPORTANT: Fatal Error:Failed to roll back. Please check the errors and do manual intervention',
+        )
     remove_applied_file(ind, changelog_path)

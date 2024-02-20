@@ -14,17 +14,20 @@ print(ROOT_DIR)
 
 settings = get_config(f'{ROOT_DIR}/config.toml')
 
-
 DATE_FORMAT = '%y/%m/%d %T'
-LOG_LEVEL = settings['default']['LOG_LEVEL']
 
-if LOG_LEVEL == 'DEBUG':
-    FORMAT = '%(asctime)s %(levelname)s %(name)s[%(lineno)s] %(funcName)s: %(message)s'
-else:
-    FORMAT = '%(asctime)s %(levelname)s %(name)s: %(message)s'
+
+def configure_logging():
+    log_level = os.environ.get('LOG_LEVEL', 'DEBUG')
+    if log_level == 'DEBUG':
+        FORMAT = '%(asctime)s %(levelname)s %(name)s[%(lineno)s] %(funcName)s: %(message)s'
+    else:
+        FORMAT = '%(asctime)s %(levelname)s %(name)s: %(message)s'
+    return log_level, FORMAT
 
 
 def get_logger(name=''):
+    log_level, FORMAT = configure_logging()
     logger = logging.getLogger(name)  # get root logger
     if logger.handlers:
         return logger
@@ -67,10 +70,10 @@ def get_logger(name=''):
         formatter = logging.Formatter(fmt=FORMAT, datefmt=DATE_FORMAT)
 
     stream_handler.setFormatter(formatter)
-    stream_handler.setLevel(LOG_LEVEL)
+    stream_handler.setLevel(log_level)
 
     logger = logging.getLogger(name)
-    logger.setLevel(LOG_LEVEL)
+    logger.setLevel(log_level)
     logger.addHandler(stream_handler)
 
     return logger

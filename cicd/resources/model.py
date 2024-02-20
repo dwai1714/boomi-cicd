@@ -17,8 +17,11 @@ class Model:
     """
 
     Args:
+        model_name: The name of the model
+        config_file_path: The configuration file (.toml) where ENV specific values are kept
         file_name : The xml file that should be processed
         repository_name : Repository name (required)
+        source_id: The source_id for initial load
         account_id : Boomi Account ID (defined in config file as env variable)
         cloud_id : Boomi Cloud ID (defined in config file as env variable)
         base64_credentials : Credentials (defined in config file as env variable)
@@ -26,25 +29,22 @@ class Model:
     """
 
     def __init__(
-        self, model_name: str, config_file_path: str, file_name: str = None, repository_name: str = None,
-        source_id: str = None,
-        account_id: str = None,
-        cloud_id: str = None, base64_credentials: str = None, endpoint_url: str = None,
-            source_ids: List[str] = None,
+            self, model_name: str, config_file_path: str, file_name: str = None, repository_name: str = None,
+            account_id: str = None,
+            cloud_id: str = None, base64_credentials: str = None, endpoint_url: str = None,
+
     ):
 
         self.environment = os.environ['ENV']
 
         config = get_config(config_file_path)
-        self.environment = os.environ['ENV']
 
         self.environment = os.environ['ENV']
         self.file_name = file_name
         self.model_name = model_name
         self.repository_name = repository_name
-        self.source_ids = self.get_source_ids_from_xml()
 
-        self.repository = Repository(self.repository_name,config_file_path)
+        self.repository = Repository(self.repository_name, config_file_path)
         self.repository_id = self.repository.get_repo_id()
 
         if account_id is None:
@@ -57,35 +57,34 @@ class Model:
         if endpoint_url is None:
             self.endpoint_url = config[self.environment]['endpoint_url']
 
-
     def create_model(self):
-            """
-            Create a model
+        """
+        Create a model
 
-            Returns:
-                content of response
-            """
-            url = f'{self.endpoint_url}/{self.account_id}/models'
-            if self.file_name is None:
-                raise RuntimeError('Create and update model needs valid xml')
-            with open(self.file_name, 'rb') as payload:
-                dict_xml = (xmltodict.parse(payload))
-                model_name_from_file = dict_xml['mdm:CreateModelRequest']['mdm:name']
-                if self.model_name != model_name_from_file:
-                    raise RuntimeError(
-                        'model names in file and object are different',
-                    )
-                if self.get_model_id_from_name() is not None:
-                    raise RuntimeError('model with same name exists')
-
-            with open(self.file_name, 'rb') as payload:
-                response = requests.post(
-                    url=url, headers=self.headers, data=payload,
+        Returns:
+            content of response
+        """
+        url = f'{self.endpoint_url}/{self.account_id}/models'
+        if self.file_name is None:
+            raise RuntimeError('Create and update model needs valid xml')
+        with open(self.file_name, 'rb') as payload:
+            dict_xml = (xmltodict.parse(payload))
+            model_name_from_file = dict_xml['mdm:CreateModelRequest']['mdm:name']
+            if self.model_name != model_name_from_file:
+                raise RuntimeError(
+                    'model names in file and object are different',
                 )
-                if response.status_code != 200:
-                    logger.info(f'Response is {response.content}')
-                    raise RuntimeError('Response is not 200. Exiting')
-                return response, response.content
+            if self.get_model_id_from_name() is not None:
+                raise RuntimeError('model with same name exists')
+
+        with open(self.file_name, 'rb') as payload:
+            response = requests.post(
+                url=url, headers=self.headers, data=payload,
+            )
+            if response.status_code != 200:
+                logger.info(f'Response is {response.content}')
+                raise RuntimeError('Response is not 200. Exiting')
+            return response, response.content
 
     def get_model_id_from_name(self):
         """
@@ -205,12 +204,12 @@ class Model:
 
         return source_ids
 
-    def enable_initial_load_for_source(self, source_id: str):
+    def enable_initial_load_for_source(self, source_id):
         """
         Enable initial load for a specific source.
 
         Args:
-            source_id: The ID of the source for which initial load should be enabled.
+
 
         Raises:
             ValueError: If the provided source_id is not found in the list of source_ids.
@@ -218,8 +217,12 @@ class Model:
         Returns:
             Response of the call.
         """
+        if source_id is None:
+            raise RuntimeError('source_id can not be None')
         model_id = self.get_model_id_from_name()
-        if source_id not in self.source_ids:
+        source_ids = self.get_source_ids_from_xml()
+
+        if source_id not in source_ids:
             raise ValueError(f"Source ID '{source_id}' is not found in the list of source IDs.")
 
         url = (
@@ -232,21 +235,24 @@ class Model:
             logger.info(f'Response is {response.content}')
             raise RuntimeError('Response is not 200. Exiting')
 
-    def finish_initial_load(self, source_id: str):
+    def finish_initial_load(self, source_id):
         """
         Finish initial load for a model.
 
         Args:
-            source_id: The ID of the source for which initial load should be enabled.
 
         Raises:
             ValueError: If the provided source_id is not found in the list of source_ids.
         Returns:
            Response of the call
         """
-        model_id = self.get_model_id_from_name()
+        if source_id is None:
+            raise RuntimeError('source_id can not be None')
 
-        if source_id not in self.source_ids:
+        model_id = self.get_model_id_from_name()
+        source_ids = self.get_source_ids_from_xml()
+
+        if source_id not in source_ids:
             raise ValueError(f"Source ID '{source_id}' is not found in the list of source IDs.")
 
         url = (

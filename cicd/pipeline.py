@@ -3,14 +3,15 @@ from __future__ import annotations
 import argparse
 import os
 import time
-from pathlib import Path
 
 from humanfriendly import format_timespan
 from pyfiglet import Figlet
 
-from cicd import merge_to_master, promote
+from cicd import merge_to_master
+from cicd import promote
 
 f = Figlet(font='slant')
+
 
 def main():
     parser = argparse.ArgumentParser(description='Run the pipeline file')
@@ -63,6 +64,5 @@ if __name__ == '__main__':
     start = time.time()
     main()
     print(f'Execution time: {format_timespan(time.time() - start)}')
-
 
 """pip install https://raw.githubusercontent.com/dwai1714/boomi_cicd/main/dist/boomi_cicd-0.1.0-py3-none-any.whl"""
