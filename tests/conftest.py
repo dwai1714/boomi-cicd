@@ -1,5 +1,5 @@
 from __future__ import annotations
-
+import os
 from unittest.mock import Mock
 
 import pytest
@@ -84,3 +84,13 @@ def delete_api_failure(mocker):
     mocker.patch.object(requests, 'delete', return_value=mocked_response)
 
     return mocker
+
+
+@pytest.fixture
+def create_change_file_json():
+    try:
+        os.mkdir('/tmp/changelog/')
+    except OSError:
+        pass
+    with open('/tmp/changelog/changelog.json', 'w') as f:
+        f.write('{"DEV": {"a":"abc"}, "QA": {"x":"xyz"}}')
