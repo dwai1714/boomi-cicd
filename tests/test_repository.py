@@ -3,7 +3,7 @@ from __future__ import annotations
 from cicd.resources.repository import Repository
 
 
-def test_create_repo(post_repo_api_sucess):
+def test_create_repo(post_api_success):
     repository = Repository('test_repo', 'test_config.toml')
 
     response, response.content = repository.create_repo()
@@ -11,7 +11,7 @@ def test_create_repo(post_repo_api_sucess):
     assert response.status_code == 200
 
 
-def test_create_repo_failure(post_repo_api_failure):
+def test_create_repo_failure(post_api_failure):
     repository = Repository('test_repo', 'test_config.toml')
 
     try:
@@ -20,7 +20,7 @@ def test_create_repo_failure(post_repo_api_failure):
         assert str(e) == 'Response is not 200. Exiting'
 
 
-def test_get_repo_id(get_repo_api_sucess):
+def test_get_repo_id(get_repo_api_success):
     repository = Repository('test_repo', 'test_config.toml')
 
     response = repository.get_repo_id()
@@ -28,7 +28,7 @@ def test_get_repo_id(get_repo_api_sucess):
     assert int(response) == 1
 
 
-def test_delete_repo(get_repo_api_sucess, delete_repo_api_success):
+def test_delete_repo(get_repo_api_success, delete_api_success):
     repository = Repository('test_repo', 'test_config.toml')
 
     response, response.content = repository.delete_repo()
@@ -36,7 +36,7 @@ def test_delete_repo(get_repo_api_sucess, delete_repo_api_success):
     assert response.status_code == 200
 
 
-def test_delete_repo_failre(get_repo_api_sucess, delete_repo_api_failure):
+def test_delete_repo_failre(get_repo_api_success, delete_api_failure):
     repository = Repository('test_repo', 'test_config.toml')
 
     try:
