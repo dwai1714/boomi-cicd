@@ -20,7 +20,7 @@ from cicd.utils.log import get_logger
 
     ],
 )
-def test_configure_logging(monkeypatch, log_level, expected_format):
+def test_configure_logging(log_level, expected_format):
     # Set LOG_LEVEL environment variable using monkeypatch
     os.environ['LOG_LEVEL'] = log_level
 

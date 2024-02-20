@@ -26,7 +26,7 @@ def find_files_to_apply(versions_path, changelog_path):
         file that has to be applied
 
     """
-    env_dict, files_applied, last_index = get_last_index(changelog_path)
+    env_dict, files_applied, last_index = _get_last_index(changelog_path)
 
     from os.path import isfile, join
     only_py_files = [
@@ -41,7 +41,7 @@ def find_files_to_apply(versions_path, changelog_path):
     return last_index, changed_files
 
 
-def get_last_index(changelog_path):
+def _get_last_index(changelog_path):
     with open(f'{changelog_path}/changelog.json', 'r') as json_s:
         changelog_dict = json.load(json_s)
         env_dict = changelog_dict['DEV']
@@ -69,7 +69,7 @@ def apply_changes(versions_path, changelog_path):
 
 
 def rollback_changes(versions_path, changelog_path):
-    env_dict, files_applied, last_index = get_last_index(changelog_path)
+    env_dict, files_applied, last_index = _get_last_index(changelog_path)
     if len(env_dict) != 0:
         file_name = env_dict[str(last_index)]
         rollback_file(versions_path, file_name, last_index, changelog_path)

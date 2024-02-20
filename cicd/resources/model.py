@@ -21,7 +21,6 @@ class Model:
         config_file_path: The configuration file (.toml) where ENV specific values are kept
         file_name : The xml file that should be processed
         repository_name : Repository name (required)
-        source_id: The source_id for initial load
         account_id : Boomi Account ID (defined in config file as env variable)
         cloud_id : Boomi Cloud ID (defined in config file as env variable)
         base64_credentials : Credentials (defined in config file as env variable)

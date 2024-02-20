@@ -20,7 +20,7 @@ To use this tool you need to pip install boomi_cicd-0.1.0-py3-none-any.whl from 
 For simplicity’s sake create a versions directory in your project.
 To create an atomic change file use the following command
 ```commandline
-create-file --versions_path ~/roompot/mdm_infra/manage_actual_changes/versions --file_name your_file_name
+create-file  ~/roompot/mdm_infra/manage_actual_changes/versions your_file_name
 ```
 This will create a version file with two methods
 forward - This is where you should apply all your changes. You can chain function calls
@@ -46,12 +46,12 @@ fails it applies backward() and makes sure the env is clean
 ## Pipeline Logic
 The pipeline code should call the following CLI command inside the shell script
 ```commandline
-pipeline --versions_path path/to/versions/ --changelog_path path/to/changelog.json
+pipeline  path/to/versions/  path/to/changelog.json
 ```
 Once this is successful, you should run the integration tests etc.
 If the integration tests fail
 ```commandline
-pipeline --versions_path path/to/versions/ --changelog_path path/to/changelog.json --rollback Y
+pipeline  path/to/versions/  path/to/changelog.json --rollback
 ```
 This will roll back all the changes made if you hae created the backward function properly
 
