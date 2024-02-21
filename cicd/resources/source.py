@@ -23,8 +23,8 @@ class Source:
        """
 
     def __init__(
-            self, source_id: str, config_file_path: str, file_name=None, account_id: str = None,
-            base64_credentials: str = None, endpoint_url: str = None,
+        self, source_id: str, config_file_path: str, file_name=None, account_id: str = None,
+        base64_credentials: str = None, endpoint_url: str = None,
     ):
         config = get_config(config_file_path)
         self.environment = os.environ['ENV']
