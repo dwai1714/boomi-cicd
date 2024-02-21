@@ -23,8 +23,8 @@ class Source:
        """
 
     def __init__(
-        self, source_id: str, config_file_path: str, file_name=None, account_id: str = None,
-        base64_credentials: str = None, endpoint_url: str = None,
+            self, source_id: str, config_file_path: str, file_name=None, account_id: str = None,
+            base64_credentials: str = None, endpoint_url: str = None,
     ):
         config = get_config(config_file_path)
         self.environment = os.environ['ENV']
@@ -59,45 +59,58 @@ class Source:
             raise RuntimeError('Response is not 200 Exiting')
 
     def create_source(self):
-
         """
             Creates Source in MDM
-        """
-        source_ids = self._list_sources()
-        if self.source_id in source_ids:
-            raise RuntimeError('Source with this ID already present')
+            """
         if self.file_name is None:
-            raise RuntimeError('Please provide valid XML File')
+            raise RuntimeError('Please provide a valid XML File')
 
-        url = f'{self.endpoint_url}/{self.account_id}/sources/create'
-        with open(self.file_name, 'rb') as payload:
-            create_source_xml_data = payload.read()
-            print(create_source_xml_data)
-        response = requests.post(url=url, headers=self.headers, data=create_source_xml_data)
-        if response.status_code != 200:
-            logger.info(f'Response is {response.content}')
-            raise RuntimeError('Response is not 200. Exiting')
-        return response, response.content
+        source_ids = self._list_sources()
+
+        try:
+            with open(self.file_name, 'rb') as payload:
+                create_source_xml_data = payload.read()
+                data_dict = xmltodict.parse(create_source_xml_data)
+                source_id = data_dict['mdm:CreateSourceRequest']['mdm:sourceId']
+                print(source_id)
+                if source_id in source_ids:
+                    raise RuntimeError('Source with this ID already present')
+
+                url = f'{self.endpoint_url}/{self.account_id}/sources/create'
+                print(create_source_xml_data)
+                response = requests.post(url=url, headers=self.headers, data=create_source_xml_data)
+                if response.status_code != 200:
+                    logger.info(f'Response is {response.content}')
+                    raise RuntimeError('Response is not 200. Exiting')
+                logger.info("Source Created Successfully")
+                return response, response.content
+        except Exception as e:
+            logger.error(f'Error: {e}')
+            raise RuntimeError(f'Error: {e}')
 
     def update_source(self):
-
         """
-            Updates Source in MDM
+        Updates Source in MDM
         """
         source_ids = self._list_sources()
-
+        if self.file_name is None:
+            raise RuntimeError('Please provide a valid XML File')
         if self.source_id not in source_ids:
             raise RuntimeError('Source with this ID is not Present, Please create a new source')
-
-        url = f'{self.endpoint_url}/{self.account_id}/sources/{self.source_id}'
-        with open(self.file_name, 'rb') as payload:
-            xml_data = payload.read()
-            print(xml_data)
+        try:
+            url = f'{self.endpoint_url}/{self.account_id}/sources/{self.source_id}'
+            with open(self.file_name, 'rb') as payload:
+                xml_data = payload.read()
+                print(xml_data)
             response = requests.put(url=url, headers=self.headers, data=xml_data)
-        if response.status_code != 200:
-            logger.info(f'Response is {response.content}')
-            raise RuntimeError('Response is not 200. Exiting')
-        return response, response.content
+            if response.status_code != 200:
+                logger.info(f'Response is {response.content}')
+                raise RuntimeError('Response is not 200. Exiting')
+            logger.info("Source Updated Successfully")
+            return response, response.content
+        except Exception as e:
+            logger.error(f'Error: {e}')
+            raise RuntimeError(f'Error: {e}')
 
     def delete_source(self):
 
@@ -114,4 +127,5 @@ class Source:
         if response.status_code != 200:
             logger.info(f'Response is {response.content}')
             raise RuntimeError('Response is not 200. Exiting')
+        logger.info("Source Deleted Successfully")
         return response, response.content
