@@ -15,14 +15,9 @@ def runner():
     return CliRunner()
 
 
-@pytest.fixture
-def getUUID():
-    return short_uuid()
-
-
 @patch('cicd.create_version_file.short_uuid')
 def test_cli_success(mock_short_uuid, runner):
-    # Mock the _short_uuid function to return a known value
+    # Mock the short_uuid function to return a known value
     mock_short_uuid.return_value = 'abcd'
 
     versions_path = '/tmp'

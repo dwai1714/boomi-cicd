@@ -49,7 +49,7 @@ def mock_logger_error():
         yield mock_logger
 
 
-def test_create_source_raises_runtime_error_when_source_id_already_present(
+def test_create_source_raises_value_error_when_source_id_already_present(
         mock_requests_post,
         mock_create_source_xml_data,
 ):
@@ -57,21 +57,21 @@ def test_create_source_raises_runtime_error_when_source_id_already_present(
     source.source_id = 'existing_source_id'
     source._list_sources = MagicMock(return_value=['existing_source_id'])
 
-    with pytest.raises(RuntimeError):
+    with pytest.raises(ValueError):
         source.create_source()
 
 
-def test_create_source_raises_runtime_error_when_file_name_is_none(mock_requests_post, mock_create_source_xml_data):
+def test_create_source_raises_value_error_when_file_name_is_none(mock_requests_post, mock_create_source_xml_data):
     source = Source('existing_source_id', 'test_config.toml')
     source.file_name = None
     source._list_sources = MagicMock(return_value=[])
 
-    with pytest.raises(RuntimeError):
+    with pytest.raises(ValueError):
         source.create_source()
 
 
 def test_create_source_successful(mock_requests_post, mock_create_source_xml_data):
-    source = Source('existing_source_id', 'test_config.toml')
+    source = Source('non_existing_source_id', 'test_config.toml')
     source.source_id = 'new_source_id'
     source.file_name = 'test.xml'
     source.endpoint_url = 'http://example.com'
@@ -103,7 +103,7 @@ def test_create_source_unsuccessful(mock_requests_post, mock_create_source_xml_d
         mock_response = MagicMock()
         mock_response.status_code = 500
         mock_requests_post.return_value = mock_response
-        with pytest.raises(RuntimeError):
+        with pytest.raises(ValueError):
             source.create_source()
             assert mock_requests_post.called
             mock_requests_post.assert_called_with(
@@ -111,7 +111,7 @@ def test_create_source_unsuccessful(mock_requests_post, mock_create_source_xml_d
                 headers={'Content-Type': 'application/xml'},
                 data=mock_create_source_xml_data,
             )
-        with pytest.raises(RuntimeError):
+        with pytest.raises(ValueError):
             source.create_source()
         assert mock_logger_error.called_once_with('Failed to create source. Server Error')
         assert mock_requests_post.called_once_with(
