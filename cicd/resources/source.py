@@ -64,16 +64,14 @@ class Source:
             Creates Source in MDM
         """
         source_ids = self._list_sources()
+        if self.source_id in source_ids:
+            raise RuntimeError('Source with this ID already present')
         if self.file_name is None:
             raise RuntimeError('Please provide valid XML File')
 
         url = f'{self.endpoint_url}/{self.account_id}/sources/create'
         with open(self.file_name, 'rb') as payload:
             create_source_xml_data = payload.read()
-            data_dict = xmltodict.parse(create_source_xml_data)
-            source_id = data_dict.get('mdm:CreateSourceRequest', {}).get('mdm:sourceId')
-            if source_id in source_ids:
-                raise RuntimeError('Source with this ID already present')
             print(create_source_xml_data)
         response = requests.post(url=url, headers=self.headers, data=create_source_xml_data)
         if response.status_code != 200:
@@ -117,4 +115,3 @@ class Source:
             logger.info(f'Response is {response.content}')
             raise RuntimeError('Response is not 200. Exiting')
         return response, response.content
-
