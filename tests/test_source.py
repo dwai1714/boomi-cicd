@@ -105,20 +105,12 @@ def test_create_source_unsuccessful(mock_requests_post, mock_create_source_xml_d
         mock_requests_post.return_value = mock_response
         with pytest.raises(RuntimeError):
             source.create_source()
-            assert mock_requests_post.called
             mock_requests_post.assert_called_with(
                 url='http://example.com/account_id/sources/create',
                 headers={'Content-Type': 'application/xml'},
                 data=mock_create_source_xml_data,
             )
-        with pytest.raises(RuntimeError):
-            source.create_source()
-        assert mock_logger_error.called_once_with('Failed to create source. Server Error')
-        assert mock_requests_post.called_once_with(
-            url='http://example.com/account_id/sources/create',
-            headers={'Content-Type': 'application/xml'},
-            data=b'content_of_test_xml',
-        )
+            assert mock_logger_error.called_with('Failed to create source. Server Error')
 
 
 def test_update_source_raises_runtime_error_when_source_id_not_present(mock_requests_put, mock_update_source_xml_data):
