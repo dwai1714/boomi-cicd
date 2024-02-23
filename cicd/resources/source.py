@@ -117,14 +117,4 @@ class Source:
             logger.info(f'Response is {response.content}')
             raise RuntimeError('Response is not 200. Exiting')
         return response, response.content
-current_dir = os.path.dirname(os.path.abspath("UpdateMaxxtonSource.xml"))
-parent_dir = os.path.dirname(current_dir)
 
-# Construct the relative path to the XML file
-fileName = os.path.join(current_dir, "CreateSource.xml")
-configPath = os.path.join(parent_dir, "utils", "config.toml")
-if __name__ == '__main__':
-    source = Source(file_name=fileName, source_id="", config_file_path=configPath)
-    # source.update_source()
-    # source.delete_source()
-    source.create_source()
