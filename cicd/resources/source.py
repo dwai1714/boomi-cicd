@@ -72,7 +72,6 @@ class Source:
             create_source_xml_data = payload.read()
             data_dict = xmltodict.parse(create_source_xml_data)
             source_id = data_dict.get('mdm:CreateSourceRequest', {}).get('mdm:sourceId')
-            print(source_id)
             if source_id in source_ids:
                 raise RuntimeError('Source with this ID already present')
             print(create_source_xml_data)
