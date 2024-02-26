@@ -35,16 +35,13 @@ class Model:
     ):
 
         self.environment = os.environ['ENV']
-
+        self.config_file_path = config_file_path
         config = get_config(config_file_path)
 
         self.environment = os.environ['ENV']
         self.file_name = file_name
         self.model_name = model_name
         self.repository_name = repository_name
-
-        self.repository = Repository(self.repository_name, config_file_path)
-        self.repository_id = self.repository.get_repo_id()
 
         if account_id is None:
             self.account_id = config[self.environment]['account_id']
@@ -67,14 +64,18 @@ class Model:
         if self.file_name is None:
             raise RuntimeError('Create and update model needs valid xml')
         with open(self.file_name, 'rb') as payload:
-            dict_xml = (xmltodict.parse(payload))
-            model_name_from_file = dict_xml['mdm:CreateModelRequest']['mdm:name']
+            try:
+                dict_xml = (xmltodict.parse(payload))
+                model_name_from_file = dict_xml['mdm:CreateModelRequest']['mdm:name']
+            except Exception as e:
+                logger.error(f"Exception is {e}")
+                raise ValueError("XML File is malformed")
             if self.model_name != model_name_from_file:
-                raise RuntimeError(
+                raise ValueError(
                     'model names in file and object are different',
                 )
             if self.get_model_id_from_name() is not None:
-                raise RuntimeError('model with same name exists')
+                raise ValueError('model with same name exists')
 
         with open(self.file_name, 'rb') as payload:
             response = requests.post(
@@ -109,7 +110,7 @@ class Model:
         model_id = self.get_model_id_from_name()
         url = f'{self.endpoint_url}/{self.account_id}/models/{model_id}'
         if self.file_name is None:
-            raise RuntimeError('Create and update model needs valid xml')
+            raise ValueError('Create and update model needs valid xml')
         with open(self.file_name, 'rb') as payload:
             response = requests.put(
                 url=url, headers=self.headers, data=payload,
@@ -161,7 +162,9 @@ class Model:
             response of the call
         """
         model_id = self.get_model_id_from_name()
-        url = f'{self.endpoint_url}/{self.account_id}/universe/{model_id}/deploy?repositoryId={self.repository_id}'
+        repository = Repository(self.repository_name, self.config_file_path)
+        repository_id = repository.get_repo_id()
+        url = f'{self.endpoint_url}/{self.account_id}/universe/{model_id}/deploy?repositoryId={repository_id}'
         response = requests.post(url=url, headers=self.headers)
         if response.status_code != 200:
             logger.info(f'Response is {response.content}')

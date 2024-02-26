@@ -65,7 +65,7 @@ class Source:
         """
         source_ids = self._list_sources()
         if self.file_name is None:
-            raise RuntimeError('Please provide valid XML File')
+            raise ValueError('Please provide valid XML File')
 
         url = f'{self.endpoint_url}/{self.account_id}/sources/create'
         with open(self.file_name, 'rb') as payload:
@@ -73,12 +73,11 @@ class Source:
             data_dict = xmltodict.parse(create_source_xml_data)
             source_id = data_dict.get('mdm:CreateSourceRequest', {}).get('mdm:sourceId')
             if source_id in source_ids:
-                raise RuntimeError('Source with this ID already present')
-            print(create_source_xml_data)
+                raise ValueError('Source with this ID already present')
         response = requests.post(url=url, headers=self.headers, data=create_source_xml_data)
         if response.status_code != 200:
             logger.info(f'Response is {response.content}')
-            raise RuntimeError('Response is not 200. Exiting')
+            raise ValueError('Response is not 200. Exiting')
         return response, response.content
 
     def update_source(self):
@@ -89,12 +88,11 @@ class Source:
         source_ids = self._list_sources()
 
         if self.source_id not in source_ids:
-            raise RuntimeError('Source with this ID is not Present, Please create a new source')
+            raise ValueError('Source with this ID is not Present, Please create a new source')
 
         url = f'{self.endpoint_url}/{self.account_id}/sources/{self.source_id}'
         with open(self.file_name, 'rb') as payload:
             xml_data = payload.read()
-            print(xml_data)
             response = requests.put(url=url, headers=self.headers, data=xml_data)
         if response.status_code != 200:
             logger.info(f'Response is {response.content}')
@@ -109,7 +107,7 @@ class Source:
         source_ids = self._list_sources()
 
         if self.source_id not in source_ids:
-            raise RuntimeError('Source with this ID does not exist')
+            raise ValueError('Source with this ID does not exist')
 
         url = f'{self.endpoint_url}/{self.account_id}/sources/{self.source_id}'
         response = requests.delete(url=url, headers=self.headers)
