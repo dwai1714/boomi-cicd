@@ -178,7 +178,9 @@ class Model:
                     response of the call
         """
         model_id = self.get_model_id_from_name()
-        url = f'{self.endpoint_url}/{self.account_id}/repositories/{self.repository_id}/universe/{model_id}'
+        repository = Repository(self.repository_name, self.config_file_path)
+        repository_id = repository.get_repo_id()
+        url = f'{self.endpoint_url}/{self.account_id}/repositories/{repository_id}/universe/{model_id}'
         response = requests.delete(url=url, headers=self.headers)
         if response.status_code != 200:
             logger.info(f'Response is {response.content}')
@@ -227,8 +229,10 @@ class Model:
         if source_id not in source_ids:
             raise ValueError(f"Source ID '{source_id}' is not found in the list of source IDs.")
 
+        repository = Repository(self.repository_name, self.config_file_path)
+        repository_id = repository.get_repo_id()
         url = (
-            f'{self.endpoint_url}/{self.account_id}/repositories/{self.repository_id}/universes/{model_id}'
+            f'{self.endpoint_url}/{self.account_id}/repositories/{repository_id}/universes/{model_id}'
             f'/sources/{source_id}/enableInitialLoad'
         )
         response = requests.post(url=url, headers=self.headers)
@@ -256,9 +260,10 @@ class Model:
 
         if source_id not in source_ids:
             raise ValueError(f"Source ID '{source_id}' is not found in the list of source IDs.")
-
+        repository = Repository(self.repository_name, self.config_file_path)
+        repository_id = repository.get_repo_id()
         url = (
-            f'{self.endpoint_url}/{self.account_id}/repositories/{self.repository_id}/universes/{model_id}'
+            f'{self.endpoint_url}/{self.account_id}/repositories/{repository_id}/universes/{model_id}'
             f'/sources/{source_id}/finishInitialLoad'
         )
         response = requests.post(url=url, headers=self.headers)
