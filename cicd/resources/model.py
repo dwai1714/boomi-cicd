@@ -273,15 +273,22 @@ class Model:
             raise RuntimeError('Response is not 200. Exiting')
 
     def is_model_deployed(self, repo_id):
+        """
+        Checks if a model is deployed to a particular Repo.
+        Parameters:
+            repo_id (str): The ID of the repository to check.
+
+        Returns:
+            true or false
+        """
         url = f'{self.endpoint_url}/{self.account_id}/repositories/{repo_id}'
         response = requests.get(url=url, headers=self.headers)
         repo_info = (xmltodict.parse(response.content))
-        models = []
         model_info = repo_info['mdm:Repository']["mdm:Universe"]
-        if isinstance(model_info, list):
-            for item in model_info:
-                models.append(item['@name'])
-        else:
-            models.append(model_info["@name"])
+        # Convert model_info to a list if it's not a list
+        model_info_list = model_info if isinstance(model_info, list) else [model_info]
 
-        return "true" if self.model_name in models else "false"
+        # Extract model names using map function
+        models = list(map(lambda item: item['@name'], model_info_list))
+        return self.model_name in models
+
