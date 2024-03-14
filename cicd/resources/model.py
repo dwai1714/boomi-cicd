@@ -272,21 +272,16 @@ class Model:
             logger.info(f'Response is {response.content}')
             raise RuntimeError('Response is not 200. Exiting')
 
-    def is_model_deployed(self):
-        url = f'{self.endpoint_url}/{self.account_id}/repositories'
+    def is_model_deployed(self, repo_id):
+        url = f'{self.endpoint_url}/{self.account_id}/repositories/{repo_id}'
         response = requests.get(url=url, headers=self.headers)
-        dict_xml = (xmltodict.parse(response.content))
-        repo_list = dict_xml['mdm:Repositories']['mdm:Repository']
-        universe_names = []
-
-        # Iterate through the data
-        for item in repo_list:
-            if item['@name'] == self.repository_name:
-                # If it matches, extract the names of 'mdm:Universe'
-                if 'mdm:Universe' in item:
-                    for universe in item['mdm:Universe']:
-                        universe_names.append(universe['@name'])
-        if self.model_name in universe_names:
-            return "true"
+        repo_info = (xmltodict.parse(response.content))
+        models = []
+        model_info = repo_info['mdm:Repository']["mdm:Universe"]
+        if isinstance(model_info, list):
+            for item in model_info:
+                models.append(item['@name'])
         else:
-            return "false"
+            models.append(model_info["@name"])
+
+        return "true" if self.model_name in models else "false"
