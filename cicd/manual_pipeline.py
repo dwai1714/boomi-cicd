@@ -20,7 +20,7 @@ f = Figlet(font='slant')
 def cli(versions_path: str, file_name: str, rollback: Optional[str]):
     env = os.environ.get('ENV', 'DEV')
 
-    click.echo(f.renderText('run pipeline'))
+    click.echo(f.renderText('Manually apply changes. This does not update changelog.json'))
     click.echo(f'file_name: {file_name}')
     click.echo(f'versions_path: {versions_path}')
     click.echo(f'rollback: {rollback}')
@@ -32,6 +32,7 @@ def cli(versions_path: str, file_name: str, rollback: Optional[str]):
         common_functions.apply_rollback(versions_path, file_name)
     else:
         common_functions.apply_forward(versions_path, file_name)
+    click.confirm('With great power comes great responsibility. This is a risky operation', abort=True)
 
 
 if __name__ == '__main__':
