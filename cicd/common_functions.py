@@ -64,6 +64,29 @@ def load_module(file_path, file_name, module_name):
     return module
 
 
+def apply_forward(version_path, file_name):
+    """
+        Apply a version file to the database.
+
+        Args:
+            version_path (str): The path to the directory containing the version files.
+            file_name (str): The name of the version file to apply.
+
+        Raises:
+            Exception: If the version file fails to apply.
+
+        """
+    module_name = 'versions'
+    module = load_module(version_path, file_name, module_name)
+    try:
+        module.forward()
+    except Exception as e:
+        logger.error(f'Failed to add file {file_name}, Doing rollback')
+        logger.info(e)
+        module.backward()
+        return
+
+
 def process_file(version_path, file_name, ind, changelog_path):
     """
 
@@ -77,16 +100,31 @@ def process_file(version_path, file_name, ind, changelog_path):
         None
 
     """
+    apply_forward(version_path, file_name)
+    add_applied_file(ind, file_name, changelog_path)
+
+
+def apply_rollback(version_path, file_name):
+    """
+        Apply a version file to the database.
+
+        Args:
+            version_path (str): The path to the directory containing the version files.
+            file_name (str): The name of the version file to apply.
+
+        Raises:
+            Exception: If the version file fails to apply.
+
+        """
     module_name = 'versions'
     module = load_module(version_path, file_name, module_name)
     try:
-        module.forward()
-    except Exception as e:
-        logger.error(f'Failed to add file {file_name}, Doing rollback')
-        logger.info(e)
         module.backward()
-        return
-    add_applied_file(ind, file_name, changelog_path)
+    except Exception as e:
+        logger.info(e)
+        raise RuntimeError(
+            'IMPORTANT: Fatal Error:Failed to roll back. Please check the errors and do manual intervention',
+        )
 
 
 def rollback_file(versions_path, file_name, ind, changelog_path):
@@ -102,13 +140,5 @@ def rollback_file(versions_path, file_name, ind, changelog_path):
         None
 
     """
-    module_name = 'versions'
-    module = load_module(versions_path, file_name, module_name)
-    try:
-        module.backward()
-    except Exception as e:
-        logger.info(e)
-        raise RuntimeError(
-            'IMPORTANT: Fatal Error:Failed to roll back. Please check the errors and do manual intervention',
-        )
+    apply_rollback(versions_path, file_name)
     remove_applied_file(ind, changelog_path)

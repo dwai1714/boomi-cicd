@@ -55,6 +55,15 @@ pipeline  path/to/versions/  path/to/changelog.json --rollback
 ```
 This will roll back all the changes made if you hae created the backward function properly
 
+## Manual Update
+To do a manual update you can short circuit the pipeline (which is very risky) and should be used only when necessary
+```commandline
+manual_pipeline  file_name path/to/versions/
+```
+for manual rollback
+```commandline
+manual_pipeline  file_name path/to/versions/ --rollback
+```
 
 ## Enviornment variables
 

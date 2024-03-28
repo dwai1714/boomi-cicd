@@ -27,6 +27,7 @@ dependencies = [
 [project.scripts]
 pipeline = "cicd.pipeline:cli"
 create-file = "cicd.create_version_file:cli"
+manual_pipeline = "cicd.manual_pipeline:cli"
 
 [tool.setuptools.package-data]
 configModule = ["*.toml"]
